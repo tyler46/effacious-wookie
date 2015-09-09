@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Node.js talks to Django</title>
+    </head>
+
+    <body>
+        <p>This is landing page</p>
+        <form id="form" action="">
+            <select name="reporter">
+                <option value="1">John</option>
+                <option value="2">Tom</option>
+            </select>
+            <input name="headline" type="text" />
+            <button>Add</button>
+        </form>
+
+        <ul id="articles">
+        </ul>
+
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+        <script>
+            var socket = io();
+
+            var form_el = $('#form');
+
+            socket.on('message', function (message) {
+                var data = message.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                $('#articles').append('<li>' + data + '</li>');
+                window.scrollBy(0, 1000000000000);
+                form_el.focus();
+            });
+
+            $('form').submit(function () {
+              var values = {};
+              $.each($('#form').serializeArray(), function (i, field) {
+                  values[field.name] = field.value;
+              });
+              console.log(values);
+              socket.emit('new article', values);
+              $('#form')[0].reset();
+              return false;
+            });
+        </script>
+    </body>
+</html>
+
